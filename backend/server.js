@@ -8,6 +8,8 @@ import cartRouter from "./routes/cartRoute.js"
 import orderRouter from "./routes/orderRoute.js"
 import path from 'path'
 import { fileURLToPath } from 'url'
+import fs from 'fs'
+import mongoose from 'mongoose'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -99,13 +101,15 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Initialize and export
-await initializeServer();
+// Initialize database (non-blocking for Vercel)
+initializeServer().catch(err => {
+    console.error('Initialization error:', err);
+});
 
 // For local development
 if (process.env.NODE_ENV !== 'production') {
     const port = process.env.PORT || 4000;
-    app.listen(port, () => console.log(`Server running on port ${port}`));
+    app.listen(port, () => console.log(`Server running on port ${port}`));      
 }
 
 export default app;
