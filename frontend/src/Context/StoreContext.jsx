@@ -38,20 +38,33 @@ const StoreContextProvider = (props) => {
     return totalAmount;
   }
 
-  const fetchFoodList = async() => {
+  const fetchFoodList = async(retryCount = 0) => {
       try {
         console.log("Fetching food list from:", url+"/api/food/list");
         const response = await axios.get(url+"/api/food/list");
         console.log("Food list response:", response.data);
+        
         if (response.data.success && Array.isArray(response.data.data)) {
+          if (response.data.data.length === 0 && retryCount < 3) {
+            // If the list is empty and we haven't retried too many times, wait and retry
+            console.log(`No food items found, retrying in 2 seconds... (attempt ${retryCount + 1})`);
+            setTimeout(() => fetchFoodList(retryCount + 1), 2000);
+            return;
+          }
           setFoodList(response.data.data);
+          console.log(`Loaded ${response.data.data.length} food items`);
         } else {
           console.error("Invalid food list data:", response.data);
           setFoodList([]);
         }
       } catch (error) {
         console.error("Error fetching food list:", error);
-        setFoodList([]);
+        if (retryCount < 3) {
+          console.log(`Retrying in 2 seconds... (attempt ${retryCount + 1})`);
+          setTimeout(() => fetchFoodList(retryCount + 1), 2000);
+        } else {
+          setFoodList([]);
+        }
       }
   }
 

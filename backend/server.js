@@ -20,7 +20,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({
     origin: ['https://frontendfoodshere.netlify.app', 'https://adminfoodshere.netlify.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'token'],
+    exposedHeaders: ['token']
 }));
 
 // Favicon handling - return 204 No Content

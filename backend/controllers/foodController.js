@@ -58,6 +58,34 @@ const listFood = async (req, res) => {
     const foods = await foodModel.find({}).lean();
     console.log(`Found ${foods.length} food items`);
     
+    if (foods.length === 0) {
+      // Add some sample food items if the database is empty
+      const sampleFoods = [
+        {
+          name: "Greek Salad",
+          description: "Fresh Mediterranean salad with feta cheese",
+          price: 12.99,
+          category: "Salad",
+          image: "https://res.cloudinary.com/djw9pfzyz/image/upload/v1/food_images/sample_salad.jpg"
+        },
+        {
+          name: "Chicken Roll",
+          description: "Grilled chicken wrap with fresh veggies",
+          price: 9.99,
+          category: "Rolls",
+          image: "https://res.cloudinary.com/djw9pfzyz/image/upload/v1/food_images/sample_roll.jpg"
+        }
+      ];
+
+      console.log("Adding sample food items...");
+      await foodModel.insertMany(sampleFoods);
+      console.log("Sample food items added successfully");
+      
+      // Fetch the foods again
+      const updatedFoods = await foodModel.find({}).lean();
+      foods.push(...updatedFoods);
+    }
+    
     // Ensure image URLs are absolute
     const foodsWithFullUrls = foods.map(food => {
       // If the image is already a full URL (starts with http/https), use it as is
@@ -67,6 +95,12 @@ const listFood = async (req, res) => {
         food.image = `${process.env.VERCEL_URL || 'https://foods-here.vercel.app'}${imagePath}`;
       }
       return food;
+    });
+
+    console.log("Sending food list response:", {
+      success: true,
+      count: foodsWithFullUrls.length,
+      categories: [...new Set(foodsWithFullUrls.map(f => f.category))]
     });
 
     res.json({ 
