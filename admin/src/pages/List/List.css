@@ -21,7 +21,7 @@
         grid-template-columns: 1fr3fr 1fr;
         gap: 15px;
     }
-    .list-table-format.title[
+    .list-table-format.title{
         display: none;
-    ]
+    }
 }
