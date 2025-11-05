@@ -23,24 +23,40 @@ const LoginPopup = ({setShowLogin}) => {
 
    const onLogin = async (event) => {
       event.preventDefault()
-      let newUrl = url;
-      if (currState==="Login") {
-        newUrl += "/api/user/login"
-      }
-      else{
-        newUrl += "/api/user/register"
-      }
+      try {
+        let newUrl = url;
+        // Ensure URL doesn't have double slashes
+        if (newUrl.endsWith('/')) {
+          newUrl = newUrl.slice(0, -1);
+        }
+        
+        const endpoint = currState === "Login" ? "/api/user/login" : "/api/user/register";
+        const fullUrl = `${newUrl}${endpoint}`;
+        
+        console.log("Making request to:", fullUrl); // Debug log
+        
+        const response = await axios.post(fullUrl, data);
 
-      const response = await axios.post(newUrl,data);
-
-
-      if (response.data.success) {
-          setToken(response.data.token);
-          localStorage.setItem("token",response.data.token);
-          setShowLogin(false)
-      }
-      else{
-        alert(response.data.message)
+        if (response.data.success) {
+            setToken(response.data.token);
+            localStorage.setItem("token", response.data.token);
+            setShowLogin(false);
+        } else {
+            alert(response.data.message);
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          alert(error.response.data.message || "Server error occurred");
+        } else if (error.request) {
+          // The request was made but no response was received
+          alert("Cannot connect to server. Please check your internet connection.");
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          alert("An error occurred. Please try again.");
+        }
       }
    }
 
