@@ -4,11 +4,17 @@ import { StoreContext } from '../../Context/StoreContext'
 import FoodItem from '../FoodItem/FoodItem'
 
 const FoodDisplay = ({ category }) => {
-  const { food_list } = useContext(StoreContext)
+  const { food_list } = useContext(StoreContext);
 
-  // Filter items based on category
+  // Debug logging
+  console.log('Current category:', category);
+  console.log('Available food items:', food_list);
+  console.log('Categories in food list:', [...new Set(food_list.map(item => item.category))]);
+
+  // Case-insensitive category matching
   const filteredItems = food_list.filter(item => 
-    category === 'All' || category === item.category
+    category === 'All' || 
+    category.toLowerCase() === item.category.toLowerCase()
   );
 
   return (
