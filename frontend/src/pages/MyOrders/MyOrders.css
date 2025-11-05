@@ -1,5 +1,5 @@
 .my-orders{
-    margin: 50px, 0px;
+    margin: 50px 0px;
 }
 
 .my-orders .container{
@@ -44,9 +44,9 @@
 
 @media (max-width: 900px) {
     .my-orders-order{
-        grid-emplate-columns: 1fr 2fr 1fr;
+        grid-template-columns: 1fr 2fr 1fr;
         row-gap: 5px;
-        font-sixe: 12px;
+        font-size: 12px;
     }
     .my-orders-order button{
         font-size: 10px;

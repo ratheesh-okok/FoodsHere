@@ -9,15 +9,15 @@
 
 .login-popup-container{
     place-self: center;
-    width: amx(23vw,330px);
-    color: 808080;
+    width: max(23vw,330px);
+    color: #808080;
     background-color: white;
     display: flex;
     flex-direction: column;
     gap: 25px;
     padding: 25px 30px;
     border-radius: 8px;
-    font-size: 14pz;
+    font-size: 14px;
     animation: fadeIn 0.5s;
 }
 
@@ -58,7 +58,7 @@
 
 .login-popup-condition{
     display: flex;
-    align-items: start;
+    align-items: flex-start;
     gap: 8px;
     margin-top: -15px;
 }
