@@ -31,17 +31,39 @@ app.get('/favicon.ico', (req, res) => {
 // Database connection with retry
 const initDB = async () => {
     try {
-        await connectDB();
-        console.log('Database connected successfully');
+        const ok = await connectDB();
+        if (ok) {
+            console.log('Database connected successfully');
+            return true;
+        }
+        console.error('Database connection returned false');
+        return false;
     } catch (error) {
         console.error('Database connection failed:', error);
-        // In production, we might want to exit or retry
-        if (process.env.NODE_ENV === 'production') {
-            console.error('Fatal: Could not connect to database');
-        }
+        return false;
     }
 };
-initDB();
+
+// global error handlers to avoid silent exits
+process.on('unhandledRejection', (reason, p) => {
+    console.error('Unhandled Rejection at:', p, 'reason:', reason);
+});
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception thrown:', err);
+});
+
+// Start initialization and (for local dev) start the HTTP server after DB connect
+const startServer = async () => {
+    const dbOk = await initDB();
+    if (!dbOk) {
+        console.warn('Warning: DB not connected. Server will still start (read-only or failing DB ops).');
+    }
+    if (process.env.NODE_ENV !== 'production') {
+        const PORT = process.env.PORT || 4000;
+        app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    }
+};
+startServer();
 
 // Static files
 if (process.env.NODE_ENV !== 'production') {
@@ -106,8 +128,4 @@ app.use((err, req, res, next) => {
 
 export default app;
 
-// Local development: start server when not on serverless (Vercel)
-if (process.env.NODE_ENV !== 'production') {
-    const PORT = process.env.PORT || 4000;
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
+
