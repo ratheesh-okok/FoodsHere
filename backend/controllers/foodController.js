@@ -54,11 +54,33 @@ const addFood = async (req, res) => {
 // Get all food items
 const listFood = async (req, res) => {
   try {
-    const foods = await foodModel.find({});
-    res.json({ success: true, data: foods });
+    console.log("Fetching food list from database");
+    const foods = await foodModel.find({}).lean();
+    console.log(`Found ${foods.length} food items`);
+    
+    // Ensure image URLs are absolute
+    const foodsWithFullUrls = foods.map(food => {
+      // If the image is already a full URL (starts with http/https), use it as is
+      if (food.image && !food.image.startsWith('http')) {
+        // Otherwise, ensure it's a relative path and combine with backend URL
+        const imagePath = food.image.startsWith('/') ? food.image : `/${food.image}`;
+        food.image = `${process.env.VERCEL_URL || 'https://foods-here.vercel.app'}${imagePath}`;
+      }
+      return food;
+    });
+
+    res.json({ 
+      success: true, 
+      data: foodsWithFullUrls,
+      count: foodsWithFullUrls.length
+    });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: "Error fetching food list" });
+    console.error("Error in listFood:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Error fetching food list",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 

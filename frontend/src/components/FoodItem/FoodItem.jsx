@@ -9,7 +9,16 @@ const FoodItem = ({ id, name, price, description, image }) => {
   return (
     <div className='food-item'>
       <div className='food-item-img-container'>
-        <img className='food-item-image' src={url + '/images/' + image} alt={name} />
+        <img 
+          className='food-item-image' 
+          src={image.startsWith('http') ? image : `${url}/images/${image}`} 
+          alt={name}
+          onError={(e) => {
+            console.error('Image load error:', image);
+            e.target.onerror = null; // Prevent infinite loop
+            e.target.src = 'https://via.placeholder.com/300x200?text=Food+Image+Not+Found';
+          }}
+        />
 
         {!cartItems[id] ? (
           <img
